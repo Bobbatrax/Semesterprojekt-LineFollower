@@ -1,4 +1,4 @@
-from stepper_motor import StepperMotor
+from differential_drive_inheritance.stepper_motor import StepperMotor
 from machine import Pin, PWM
 import time, math
 

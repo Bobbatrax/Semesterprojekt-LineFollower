@@ -1,6 +1,5 @@
 from differential_drive import DifferentialDrive
-from stepper_motor import StepperMotor
-import time, _thread
+import time
 
 ### Pins for different things on the board
 
