@@ -1,0 +1,1 @@
+This portfolio is about motor control, mainly focused on differentialdrive control for the 2 stepper motors.

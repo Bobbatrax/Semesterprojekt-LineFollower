@@ -1,0 +1,1 @@
+This portfolio is about sensor data, mainly focused on LDR and IR sensors for linetracking.
