@@ -9,12 +9,12 @@ motor1 = [0,  1,  2,  3 ]
 motor2 = [4,  5,  6,  7 ]
 
 
-leftMotor = StepperMotor(motor1, 0.5, 18000)
-rightMotor = StepperMotor(motor2, 0.5, 18000)
+leftMotor = StepperMotor(pins=motor1, pwm=0.5, frequency=18000)
+rightMotor = StepperMotor(pins=motor2, pwm=0.5, frequency=18000)
 
 
 # Differential drive object created using both motors
-difDrive = DifferentialDrive(leftMotor, rightMotor, 0.5, 18000)
+difDrive = DifferentialDrive(motor1=leftMotor, motor2=rightMotor, pwm=0.5, frequency=18000)
 
 
 # Difdrive move in square
