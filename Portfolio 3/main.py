@@ -19,11 +19,11 @@ motor1 = [0,  1,  2,  3 ]
 motor2 = [4,  5,  6,  7 ]
 
 
-leftMotor = StepperMotor(pins=motor1, pwm=0.5, frequency=18000)
-rightMotor = StepperMotor(pins=motor2, pwm=0.5, frequency=18000)
+leftMotor = StepperMotor(pins=motor1, pwm=0.1, frequency=18000)
+rightMotor = StepperMotor(pins=motor2, pwm=0.1, frequency=18000)
 
 
 # Differential drive object created using both motors
-difDrive = DifferentialDrive(motor1=leftMotor, motor2=rightMotor, pwm=0.5, frequency=18000)
+difDrive = DifferentialDrive(motor1=leftMotor, motor2=rightMotor, pwm=0.1, frequency=18000)
 
-#difDrive.turn_in_place(sequence="half", angle=180, turn_cw=True, delay=0.005)
+difDrive.turn_in_place(sequence="half", angle=180, turn_cw=True, delay=0.005)
