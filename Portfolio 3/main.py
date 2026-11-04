@@ -12,7 +12,7 @@ sensor1.clear_log()
 
 #Timer interrupts to take a sensor reading
 sensor_timer = Timer()
-sensor_timer.init(freq=20, mode=Timer.PERIODIC, callback=sensor1.RAM_storing)
+sensor_timer.init(freq=100, mode=Timer.PERIODIC, callback=sensor1.log_reading)
 
 ### Pins for different things on the board
 
