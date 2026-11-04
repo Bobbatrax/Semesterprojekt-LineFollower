@@ -9,14 +9,20 @@ class AnalogSensorLogger:
         self.filename = filename
         self.sensor = ADC(self.pin)
         self.elapsed_time = time.ticks_ms()
+        self.readings = []
         print("yooo" + str(self.elapsed_time))
 
-    def log_reading(self,timer):
+    def RAM_storing(self,timer): #While the robot is moving, the data will only be stored on the RAM, because that is much faster
+        self.readings.append(f"{time.ticks_ms()-self.elapsed_time},{self.sensor.read_u16()}")
+
+    #After the robot is done moving, all the data can be writting onto a file.
+    def log_reading(self): #Note timer is not an actual parameter, just a quirk of the timer function
         with open(self.filename, "a") as log_file: #Starts file that overwrites the previous one
             
             # Writes the value to the csv-file
-            log_file.write(f"{time.ticks_ms()-self.elapsed_time},{self.sensor.read_u16()}\n")
-            print(self.sensor.read_u16())
+            for i in range(len(self.readings)):
+                log_file.write(f"{self.readings[i]}\n")
+                print(self.sensor.read_u16())
 
     def clear_log(self):
         with open(self.filename, "w") as log_file:
