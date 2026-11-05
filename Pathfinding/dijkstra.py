@@ -16,12 +16,25 @@
 #####
 
 import heapq as pq
-from adjacency import adjlist
+
+# Support function for dijkstra, goes backwards through prev list to return the fastest path.
+def path_to(prev, target):
+    path = []
+    while target is not None:
+        # add the target to that path list
+        path.append(target)
+        # go backwards to the current targets previous vertex
+        target = prev[target]
+
+    # return a list of all the previous vertexes 
+    # reversed because the path list is found by iteration backwards through the path
+    # we reverse the reversed path to get the real path
+    return list(reversed(path))
 
 # Dijkstras
-def dijkstra(adj, src):
+def dijkstra(adj, src, target):
 
-    # a list of all distances from the source vertex
+    # a dictionary of all distances from the source vertex
     # set all distances to infinity
     dist = {v: float("inf") for v in adj}
 
@@ -31,6 +44,9 @@ def dijkstra(adj, src):
     # a priority queue using the HeapQ library 
     heap = []
 
+    # a dictionary of the previous node
+    prev = {v: None for v in adj}
+    
     # the source vertex is already added to the heap / priority queue
     pq.heappush(heap, (0, src))
 
@@ -40,29 +56,26 @@ def dijkstra(adj, src):
         # d is the distance of the vertex, for the source node src it is set to 0
         # v is the vertex name eg. "ST" or "A"
         d, v = pq.heappop(heap)
+        
+        # skip stale heap entries when a shorter route has been found already
+        if d > dist[v]:
+            continue
 
         # for each neighbour vertex to the current vertex
         for n in adj[v]:
 
             # distance + weight of the current vertex
             # adj[vertex name][neighboring vertex][distance between the two vertices]
-            dw = (d + adj[v][n][0])
+            dw = d + adj[v][n][0]
 
             # if the neighboring distance of the neighbouring vertex is greater than dw
             if dist[n] > dw:
 
                 # update the distance of the neighbour vertex (from "inf" to the edgeweight)
                 dist[n] = dw
+                prev[n] = v
 
                 # push the optional vertexes to the heap (so that they can be chosen from in the next iteration)
                 pq.heappush(heap, (dist[n], n))
 
-    return dist
-
-# Tester
-print(dijkstra(adjlist, "ST"))
-
-
-##### Next step
-# i need to add a second dictionary that keeps track of the path taken from vertex to vertex.
-# currently it only returns the distances to get to each vertex from the source vertex.
+    return dist[target], path_to(prev, target)

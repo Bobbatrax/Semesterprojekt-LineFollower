@@ -96,24 +96,24 @@ nodepos = {
     "gh1": (123, 411)
 }
 
-# tegner noderne på deres givne koordinater fra nodepos og laver edges mellem dem
-nx.draw(
-    G, 
-    nodepos, 
-    with_labels=True, 
-    node_color="lightgreen", 
-    node_size=400
-    )
+def draw_graph():
+    # tegner noderne på deres givne koordinater fra nodepos og laver edges mellem dem
+    nx.draw(
+        G, 
+        nodepos, 
+        with_labels=True, 
+        node_color="lightgreen", 
+        node_size=400
+        )
 
-# tegner labels på alle edges der fortæller om weight / længden
-nx.draw_networkx_edge_labels(
-    G, 
-    nodepos, 
-    # henter weight / længde værdierne fra "adjlist"
-    edge_labels=nx.get_edge_attributes(G, "weight"))
+    # tegner labels på alle edges der fortæller om weight / længden
+    nx.draw_networkx_edge_labels(
+        G, 
+        nodepos, 
+        # henter weight / længde værdierne fra "adjlist"
+        edge_labels=nx.get_edge_attributes(G, "weight"))
 
-# opsæter akserne på grafen
-plt.axis("equal")
-
-# åbner et seperat vindue med selve grafen
-plt.show()
+    # opsæter akserne på grafen
+    plt.axis("equal")
+    # åbner et seperat vindue med selve grafen
+    plt.show()
