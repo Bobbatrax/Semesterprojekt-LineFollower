@@ -26,6 +26,9 @@ class DifferentialDrive():
         # the circumference of the circle found between the wheels, approximately 150,8 cm in this case
         self.turning_cir = 2 * math.pi * self.wheel_base 
 
+        # next step in step sequence, to keep track
+        self.last_step_left = 0
+        self.last_step_right = 0
 
     def calc_steps(self, sequence, distance_cm = 0.0, angle = 0.0, microstep_count=0):
 
@@ -113,20 +116,29 @@ class DifferentialDrive():
                 # floor division with the sequence-length is used to reduce the inflated step count to its base value:
                 # a single full-step is comprised of 4 smaller steps, for half-step its 8, for micro its even more. 
                 # these extra smaller steps are performed in the following for-loop later down.
-                for _ in (range(abs(steps_to_move)//len(sequence))):
+                for _ in (range(math.ceil(abs(steps_to_move) / len(sequence)))):
     
                     # motor coils are updated to the next row in the sequence list (for all rows)
-                    for step in sequence:
+                    for i, step in enumerate(sequence):
     
                         # each motor is set to the next sequence row, pwm is updated for all coils
-                        self.motor1.set_step(step)  # True = The left motor
-                        self.motor2.set_step(step) # False = the right motor
+                        self.motor1.set_step(self.last_step_left+1)  # True = The left motor
+                        self.motor2.set_step(self.last_step_right+1) # False = the right motor
     
                         # wait for the hardware to catch up before continuing
                         time.sleep(delay)
     
                         # update total steps
                         total_steps += step_val
+
+                        # the next step in the step-sequence
+                        self.last_step_left += 1
+                        self.last_step_right += 1
+
+                        # stop condition
+                        if total_steps == steps_to_move:
+                            break
+
             finally:
                     # turn off all motor coils, stopping all movement
                     self.motor1.stop()   
@@ -166,7 +178,7 @@ class DifferentialDrive():
 
         # see method "move_dist(...)"" for more detailed comment [lines 103-128]
         try:
-            for _ in range(int(abs(steps_to_turn)) // len(sequence)):
+            for _ in range(math.ceil(abs(steps_to_turn)) / len(sequence)):
 
                 # enumerate creates (yields) an interable object with tuples (tuple: immutable list) with the sequence index and value paired up
                 # "i" is the index in the sequence-list, "step" is the value stored in the "i" index of the sequence list
@@ -174,23 +186,31 @@ class DifferentialDrive():
                 for i, step in enumerate(sequence):
 
                     # the left motor
-                    self.motor1.set_step(step)
+                    self.motor1.set_step(self.last_step_left + step_val)
 
                     # the right motor 
                     # always goes the oppisite direction of the left motor 
                     # sequence[-1] returns the last step in the sequence 
                     # with sequence[-1 - i] the right motor iterates backwards through the sequence 
-                    self.motor2.set_step(sequence[-1 - i])
+                    self.motor2.set_step(self.last_step_right - step_val)
                     
                     time.sleep(delay)
                     total_steps += step_val
+
+                    self.next_step_left += step_val
+                    self.next_step_right -= step_val
+
+                    # stop condition
+                    if total_steps == steps_to_turn:
+                        break
+
         finally:
                 self.motor1.stop()    
                 self.motor2.stop()
                 
                 print(f"[turn_in_place] Total steps performed: {total_steps}") # debugging
 
-
+    # unused
     def turn_right(self, sequence, angle: float, turn_cw: bool, delay=0.01, microstep_count=0):
         """_Turn the robot a specific degree using only the right motor_
 
@@ -226,7 +246,7 @@ class DifferentialDrive():
                 
                 print(f"[turn_right] Total steps performed: {total_steps}") # debugging
 
-
+    # unused
     def turn_left(self, sequence, angle: float, turn_cw: bool, delay=0.01, microstep_count=0):
         """_Turn the robot a specific degree using the left motor only_
 
