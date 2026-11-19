@@ -1,3 +1,4 @@
 {
-    "python-envs.defaultEnvManager": "ms-python.python:system"
+    "python-envs.defaultEnvManager": "ms-python.python:system",
+    "micropico.syncFolder": "Portfolio 2\\differential_drive_2steppers"
 }
