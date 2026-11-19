@@ -32,8 +32,19 @@ def path_to(prev, target):
     return list(reversed(path))
 
 # Dijkstras
-def dijkstra(adj, src, target):
+def dijkstra(adj: dict, src: str, target: str):
+    """_Pathfinding algorithm for finding the shortest path between two nodes in a network_ \n
+       _Takes dictonary-type adjacency lists and string-type src, target node names as parameters_
 
+    Args:
+        adj (_dict_): _Adjacency list as a dictionary_
+        src (_string_): _Node identifier name, eg. "ST", "A"_
+        target (_string_): _Node identifier name, eg. "ST", "A"_
+
+    Returns:
+        distance (_float_): _Distance from source node to target node using the shortest possible edge-path_
+        path (_list_): _List of shortest path between nodes to reach a target node_
+    """
     # a dictionary of all distances from the source vertex
     # set all distances to infinity
     dist = {v: float("inf") for v in adj}
@@ -78,4 +89,5 @@ def dijkstra(adj, src, target):
                 # push the optional vertexes to the heap (so that they can be chosen from in the next iteration)
                 pq.heappush(heap, (dist[n], n))
 
+    # returns the distance and the path as a list
     return dist[target], path_to(prev, target)
