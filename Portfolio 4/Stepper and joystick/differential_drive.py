@@ -276,13 +276,13 @@ class DifferentialDrive():
             print(f"[turn_left] Total steps performed: {total_steps}")
 
     def step_once(self, left, direction):
-        """_Advance ONE motor by ONE half-step_
+        """_Advance ONE motor by ONE setp_
 
         Args:
             left (bool): True = left motor, False = right motor
             direction (int): +1 = forward, -1 = backward
         """
-        half = self.motor1.HALF_STEP   # both motors use the same sequence
+        half = self.motor1.FULL_STEP   # both motors use the same sequence
 
         if left:
             self.left_idx = (self.left_idx + direction) % len(half)
