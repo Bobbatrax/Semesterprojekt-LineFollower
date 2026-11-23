@@ -13,7 +13,7 @@ class DigitalSensorLogger:
         print("yooo" + str(self.elapsed_time))
 
     def RAM_storing(self,timer): #While the robot is moving, the data will only be stored on the RAM, because that is much faster
-        #print(self.sensor.value())
+        print(self.sensor.value())
         self.readings.append(f"{time.ticks_ms()-self.elapsed_time},{self.sensor.value()}")
 
     #After the robot is done moving, all the data can be writting onto a file.
