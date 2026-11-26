@@ -4,7 +4,7 @@ from stepper_motor import StepperMotor
 
 
 class DifferentialDrive():
-    def __init__(self, motor1: StepperMotor, motor2: StepperMotor, pwm=0.15, frequency=18_000):
+    def __init__(self, motor1: StepperMotor, motor2: StepperMotor, pwm=0.2, frequency=18_000):
 
         self.motor1 = motor1  # left motor
         self.motor2 = motor2  # right motor
@@ -22,7 +22,7 @@ class DifferentialDrive():
         self.wheel_base = 24
 
         # the diameter of the wheels
-        self.wheel_dia = 8.6
+        self.wheel_dia = 16
 
         # the circumference of the wheels, approximately 27 cm in this case
         self.wheel_cir = math.pi * self.wheel_dia
@@ -276,20 +276,25 @@ class DifferentialDrive():
             print(f"[turn_left] Total steps performed: {total_steps}")
 
     def step_once(self, left, direction):
-        """_Advance ONE motor by ONE setp_
-
+        """Advance ONE motor by ONE step
         Args:
             left (bool): True = left motor, False = right motor
             direction (int): +1 = forward, -1 = backward
         """
-        half = self.motor1.FULL_STEP   # both motors use the same sequence
+        seq = self.motor1.FULL_STEP   # both motors share the same coil pattern list
+        # Local variables avoids repeated attribute lookups.
 
         if left:
-            self.left_idx = (self.left_idx + direction) % len(half)
-            self.motor1.set_step(half[self.left_idx])
+            # Wrap index with modulo so it loops 0..len(seq)-1 continuously.
+            # direction=+1 walks forward through seq, -1 walks backward.
+            self.left_idx = (self.left_idx + direction) % len(seq)
+            self.motor1.set_step(seq[self.left_idx])
         else:
-            self.right_idx = (self.right_idx + direction) % len(half)
-            self.motor2.set_step(half[self.right_idx])
+            # Same logic is use for the right motor
+            # Seprate indencise is used since the motors can move at diffrent speeds
+            # and be in diffrent positions.
+            self.right_idx = (self.right_idx + direction) % len(seq)
+            self.motor2.set_step(seq[self.right_idx])
 
     def stop(self):
         """Turn off all coils on both motors."""
