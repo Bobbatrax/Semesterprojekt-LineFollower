@@ -26,13 +26,14 @@ oled = ssd1306.SSD1306_I2C(128, 64, i2c)
 
 
 def display_task():
-    last = (None, None)
+    last = (None, None)  # our starting value is none
     while running:
-        gc.collect()
-        L = round(int(speeds[0] * 100))
-        R = round(int(speeds[1] * 100))
-        if (L, R) != last:
+        gc.collect()  # clears ram data so our code can run smoothly
+        L = round(speeds[0] * 100)
+        R = round(speeds[1] * 100)
+        if (L, R) != last:  # makes sure that the code only continue if L,R is not last
             oled.fill(0)
+            # %d is a placeholder format for an int, %% just tells python we want a %
             oled.text("Left:  %d%%" % L, 0, 0)
             oled.text("Right: %d%%" % R, 0, 16)
             oled.show()
