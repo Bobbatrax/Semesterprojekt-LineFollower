@@ -24,4 +24,3 @@ for i in range(4):
     time.sleep_ms(100)
     difDrive.turn_in_place("half", 90, True, 0.005)
     time.sleep_ms(100)
-

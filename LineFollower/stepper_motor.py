@@ -33,32 +33,35 @@ class StepperMotor:
 
         # one step per coil, by updating 2 coils at a time
         self.FULL_STEP = [
-            [self.pwm, self.pwm, 0       , 0       ],  # Step 0
-            [0       , self.pwm, self.pwm, 0       ],  # Step 1
-            [0       , 0       , self.pwm, self.pwm],  # Step 2
-            [self.pwm, 0       , 0       , self.pwm],  # Step 3
+            [1, 1, 0, 0],  # Step 0
+            [0, 1, 1, 0],  # Step 1
+            [0, 0, 1, 1],  # Step 2
+            [1, 0, 0, 1],  # Step 3
         ]
 
         # twice as many steps as Fullstep, by only updating 1 coil at a time
         self.HALF_STEP = [
-            [self.pwm, 0       , 0       , 0       ],  # Step 0
-            [self.pwm, self.pwm, 0       , 0       ],  # Step 1
-            [0       , self.pwm, 0       , 0       ],
-            [0       , self.pwm, self.pwm, 0       ],
-            [0       , 0       , self.pwm, 0       ],
-            [0       , 0       , self.pwm, self.pwm],
-            [0       , 0       , 0       , self.pwm],  
-            [self.pwm, 0       , 0       , self.pwm],  # Step 7
+            [1, 0, 0, 0],  # Step 0
+            [1, 1, 0, 0],  # Step 1
+            [0, 1, 0, 0],
+            [0, 1, 1, 0],
+            [0, 0, 1, 0],
+            [0, 0, 1, 1],
+            [0, 0, 0, 1],  
+            [1, 0, 0, 1],  # Step 7
         ]
 
         # set the pwm frequency of all output pins
         for output in self.outputs:
             output.freq(self.frequency)
 
+    def current_pwm(self):
+        return self.pwm() if callable(self.pwm) else self.pwm
+
     def set_step(self, step):
         """_Apply a step to the selected PWM outputs._"""
         for output, duty_cycle in zip(self.outputs, step):
-            output.duty_u16(int(duty_cycle * 65535))
+            output.duty_u16(int(duty_cycle * 65535 * self.current_pwm()))
 
     def stop(self):
         """_Set the PWM duty cycle of all outputs to zero._"""
@@ -66,46 +69,9 @@ class StepperMotor:
         self.set_step([0, 0, 0, 0])
 
         
-    def generate_microstep_sequence(self, microsteps):
-        """_Method for generating a microstep-sequence_
-
-        Args:
-            microsteps (_int_): _how many microsteps per fullstep_
-
-        Returns:
-            sequence (_list_): _a functional microstep sequence for motor control_
-        """
-        # empty list that will be filled with rows: [a, b, c, d]
-        sequence = []
-
-        # outer loop for all the four coils
-        for coil in range(4):
-
-            # inner loop for each microstep (for each coil)
-            for i in range(microsteps):
-
-                # the angle: between 0* and 90* (pi/2=90*)
-                # as i increases the angle increases to reach 90*
-                angle = (math.pi / 2) * i / microsteps 
-
-                # creates an empty row with all 4 couls turned off 
-                row = [0.0] * 4
-                
-                # the value pwm/duty cycle of first coil based of the angle
-                # as the angle increases from 0* to 90* the first coil will power down
-                row[coil] = round(self.pwm * math.cos(angle), 4)
-
-                # while the next coil will power up along side it
-                row[(coil + 1) % 4] = round(self.pwm * math.sin(angle), 4)
-
-                # each row is then saven in the sequence list
-                sequence.append(row)
-
-        # the completed sequence is completed and returned.
-        return sequence
-
+    
     # regular rotation
-    def move(self, steps: int, sequence, fwd_rot = True, delay = 0.001, microsteps=None):
+    def move(self, steps: int, sequence, fwd_rot = True, delay = 0.001):
         """_Method for rotating a stepper motor a set amount of steps._
 
         Args:
@@ -121,9 +87,6 @@ class StepperMotor:
 
         elif sequence.lower() == "half":
             sequence = self.HALF_STEP   # sets the rotation sequence to HALF_STEP
-
-        elif sequence.lower() == "micro":
-            sequence = self.generate_microstep_sequence(microsteps) # the microstep sequence is created
 
         else:
             # if an incorrect sequence is chosen it will default to fullstep to avoid errors
@@ -168,7 +131,7 @@ class StepperMotor:
 
 
     # continuous rotation stopped by onboard button
-    def move_c(self, sequence, fwd_rot = True, delay = 0.001, microsteps=None, stop_btn = Pin(27, Pin.IN, Pin.PULL_UP)):
+    def move_c(self, sequence, fwd_rot = True, delay = 0.001, stop_btn = Pin(27, Pin.IN, Pin.PULL_UP), duration=None):
         """_Method for rotating a steppermotor continously until a button interupts it._
 
         Args:
@@ -185,9 +148,6 @@ class StepperMotor:
         elif sequence.lower() == "half":
             sequence = self.HALF_STEP   # sets the rotation sequence to HALF_STEP
 
-        elif sequence.lower() == "micro":
-            sequence = self.generate_microstep_sequence(microsteps) # the microstep sequence is created
-
         else:
             # if an incorrect sequence is chosen it will default to fullstep to avoid errors
             print("Sequence Error, please use of of the listed sequences, defualting to fullstep")
@@ -197,7 +157,7 @@ class StepperMotor:
         total_steps = 0
         running = True
         step_val = 1
-        if delay < 0.001: delay = 0.001
+        start_time = time.ticks_ms()
 
         # direction
         if not fwd_rot:
@@ -207,9 +167,11 @@ class StepperMotor:
         # continuous loop
         while running:
 
+            
+            
             # keep the loop running until the button is pressed
             # 1 and 0 are button-states where 0 is pressed and 1 is not
-            if stop_btn.value() == 0:
+            if stop_btn.value() == 0 or (duration != None and time.ticks_diff(time.ticks_ms(), start_time) >= (duration * 1000)):
 
                 # stop the loop
                 running = False
@@ -218,11 +180,12 @@ class StepperMotor:
                 self.stop()
 
             else:
-                
+                current_delay = delay() if callable(delay) else delay
+                if current_delay < 0.001: current_delay = 0.001
                 # motor coils are updated to the next row in the sequence list (for all rows)
                 for step in sequence:
                     self.set_step(step)
-                    time.sleep(delay)
+                    time.sleep(current_delay)
                     total_steps += step_val
 
         # debugging

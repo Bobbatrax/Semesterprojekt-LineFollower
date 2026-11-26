@@ -10,11 +10,11 @@ class AnalogSensorLogger:
         self.sensor = ADC(self.pin)
         self.elapsed_time = time.ticks_ms()
         self.readings = []
-        print("yooo" + str(self.elapsed_time))
+        self.clear_log()
 
     def RAM_storing(self,timer): #While the robot is moving, the data will only be stored on the RAM, because that is much faster
         self.readings.append(f"{time.ticks_ms()-self.elapsed_time},{self.sensor.read_u16()}")
-        print(self.sensor.read_u16())
+        #print(self.sensor.read_u16())
 
     #After the robot is done moving, all the data can be writting onto a file.
     def log_reading(self): #Note timer is not an actual parameter, just a quirk of the timer function
