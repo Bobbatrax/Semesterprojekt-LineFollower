@@ -4,7 +4,7 @@ import time
 
 
 class DigitalSensorLogger:
-    def __init__(self,pin,filename="data.csv"):
+    def __init__(self,pin,filename):
         self.pin = pin
         self.filename = filename
         self.sensor = Pin(self.pin, Pin.IN)
