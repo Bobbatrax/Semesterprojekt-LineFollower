@@ -285,14 +285,15 @@ class DifferentialDrive():
         # Local variables avoids repeated attribute lookups.
 
         if left:
-            # Wrap index with modulo so it loops 0..len(seq)-1 continuously.
+            # If the index reaches the end of the sequence list and we step forward (from 3-4), the modulo
+            # wraps the the index back around to 0 again (and the otherway around)
             # direction=+1 walks forward through seq, -1 walks backward.
             self.left_idx = (self.left_idx + direction) % len(seq)
             self.motor1.set_step(seq[self.left_idx])
         else:
-            # Same logic is use for the right motor
-            # Seprate indencise is used since the motors can move at diffrent speeds
-            # and be in diffrent positions.
+            # Same logic is used for the right motor
+            # Seprate instances are used since the motors can move at diffrent speeds
+            # and directions leading to different posisitons in the sequence.
             self.right_idx = (self.right_idx + direction) % len(seq)
             self.motor2.set_step(seq[self.right_idx])
 
